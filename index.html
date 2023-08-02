@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <title>Cocos Creator | WordCross</title>
+
+  <!--http://www.html5rocks.com/en/mobile/mobifying/-->
+  <meta name="viewport"
+        content="width=device-width,user-scalable=no,initial-scale=1, minimum-scale=1,maximum-scale=1"/>
+
+  <!--https://developer.apple.com/library/safari/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- force webkit on 360 -->
+  <meta name="renderer" content="webkit"/>
+  <meta name="force-rendering" content="webkit"/>
+  <!-- force edge on IE -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <meta name="msapplication-tap-highlight" content="no">
+
+  <!-- force full screen on some browser -->
+  <meta name="full-screen" content="yes"/>
+  <meta name="x5-fullscreen" content="true"/>
+  <meta name="360-fullscreen" content="true"/>
+  
+  <!-- force screen orientation on some browser -->
+  <meta name="screen-orientation" content=""/>
+  <meta name="x5-orientation" content="">
+
+  <!--fix fireball/issues/3568 -->
+  <!--<meta name="browsermode" content="application">-->
+  <meta name="x5-page-mode" content="app">
+
+  <!--<link rel="apple-touch-icon" href=".png" />-->
+  <!--<link rel="apple-touch-icon-precomposed" href=".png" />-->
+
+  <link rel="stylesheet" type="text/css" href="style-mobile.css"/>
+
+</head>
+<body onload="bodyLoadComplete()">
+  <canvas id="GameCanvas" oncontextmenu="event.preventDefault()" tabindex="0"></canvas>
+  <div id="splash">
+    <div class="progress-bar stripes">
+      <span style="width: 0%"></span>
+    </div>
+  </div>
+  
+  
+<!--<script async src="https://www.googletagmanager.com/gtag/js?id=G-S5W618S331"></script>-->
+<!--	<script>-->
+<!--	  window.gtag_log_id = "G-S5W618S331";-->
+<!--	  window.dataLayer = window.dataLayer || [];-->
+<!--	  function gtag(){dataLayer.push(arguments);}-->
+<!--	  gtag('js', new Date());-->
+<!--</script>-->
+  
+  <script type ="text/javascript">
+    console.warn("【微游】版本:2");
+      window.errorServerUrl = "https://candy.9191youxi.com:8080/flyingball";
+      window.onerror = function(msg, url, line, col, error){
+                  var bugStr = error.stack.toString();
+            if(1){
+                if(bugStr.indexOf('_assembler') > 0)
+                {
+                    return;
+                }
+          }
+      };
+      if(!Array.prototype.find){
+          Array.prototype.find = function (callback) {
+              var list = Object(this);
+              // Make sure length is always an positive integer.
+              var length = list.length >>> 0;
+              var thisArg = arguments[1];
+              for (var i = 0; i < length; i++) {
+                  var element = list[i];
+                  if (callback.call(thisArg, element, i, list)) {
+                      return element;
+                  }
+              }
+
+              return undefined;
+          };
+      }
+      if (!Array.prototype.forEach) {
+
+          Array.prototype.forEach = function(callback, thisArg) {
+
+              var T, k;
+
+              if (this == null) {
+                  throw new TypeError(' this is null or not defined');
+              }
+
+              // 1. Let O be the result of calling toObject() passing the
+              // |this| value as the argument.
+              var O = Object(this);
+
+              // 2. Let lenValue be the result of calling the Get() internal
+              // method of O with the argument "length".
+              // 3. Let len be toUint32(lenValue).
+              var len = O.length >>> 0;
+
+              // 4. If isCallable(callback) is false, throw a TypeError exception.
+              // See: http://es5.github.com/#x9.11
+              if (typeof callback !== "function") {
+                  throw new TypeError(callback + ' is not a function');
+              }
+
+              // 5. If thisArg was supplied, let T be thisArg; else let
+              // T be undefined.
+              if (arguments.length > 1) {
+                  T = thisArg;
+              }
+
+              // 6. Let k be 0
+              k = 0;
+
+              // 7. Repeat, while k < len
+              while (k < len) {
+
+                  var kValue;
+
+                  // a. Let Pk be ToString(k).
+                  //    This is implicit for LHS operands of the in operator
+                  // b. Let kPresent be the result of calling the HasProperty
+                  //    internal method of O with argument Pk.
+                  //    This step can be combined with c
+                  // c. If kPresent is true, then
+                  if (k in O) {
+
+                      // i. Let kValue be the result of calling the Get internal
+                      // method of O with argument Pk.
+                      kValue = O[k];
+
+                      // ii. Call the Call internal method of callback with T as
+                      // the this value and argument list containing kValue, k, and O.
+                      callback.call(T, kValue, k, O);
+                  }
+                  // d. Increase k by 1.
+                  k++;
+              }
+              // 8. return undefined
+          };
+      }
+      /*console.log('-------test--------')
+      var arr = [11,22,33];
+      arr.find(function (a) {
+          return a === 22;
+      })
+      console.log('-------test--------end')*/
+  </script>
+<script type="text/javascript">
+
+	// 自动加载进度 玩家自增长 显示加载进度
+    var loadProgress = 1;
+    // 真实加载进度
+    var loadRealProgress = 0;
+    // 玩家唯一编号
+    var facebookPlayerid = 0;
+    // 加载完成
+    var isLoadComplete = false;
+    // 心跳进度条唯一编号
+    var updateProgress = null;
+    // 是否初始化FaceBookSDK
+    var isInitFaceBookSDK = false;
+    // 是否加载了游戏文件
+    var isLoadBody = false;
+    // 是否加载了游戏主文件
+    var isLoadMainJS = false;
+
+    // 自动增长心跳
+	var upateLoadProgress = function()
+    {
+		if(loadProgress < 26)
+		{
+			loadProgress = loadProgress + 1;
+		}
+		else if(loadProgress < 27)
+		{
+			loadProgress = loadProgress + 0.05;
+		}
+		else if(loadProgress < 40)
+		{
+			loadProgress = loadProgress + 0.25;
+		}
+		else if(loadProgress < 41)
+		{
+			loadProgress = loadProgress + 0.05;
+		}
+		else if(loadProgress < 50)
+		{
+			loadProgress = loadProgress + 0.15;
+		}
+		else
+		{
+			isLoadComplete = true;
+		}
+        if(loadProgress >= 50){
+            isLoadComplete = true;
+        }
+
+        var displayProgress = Math.ceil(loadProgress);
+        if(displayProgress > 99)
+        {
+            displayProgress = 99;
+        }
+		setLoadProgress(displayProgress);
+    }
+	
+	var setLoadProgress = function(value)
+	{
+		if(loadRealProgress < value)
+		{
+		    loadRealProgress = value;
+		    FBInstant.setLoadingProgress(loadRealProgress);
+		}
+	}
+
+    var loadJs = function(url, cb)
+    {
+        var script = document.createElement("script");
+        script.async = false;
+        script.src = url;
+        document.body.appendChild(script);
+        if(cb != null)
+        {
+          script.onload = cb;
+        }
+    }
+
+    //loadJs("https://www.facebook.com/assets.php/en_US/fbinstant.beta.js",
+	loadJs("minigame-sdk.js",
+            function(){
+
+                FBInstant.initializeAsync().then(function()
+                {
+                    isInitFaceBookSDK = true;
+                    facebookPlayerid = FBInstant.player.getID();
+                    FBInstant.logEvent('initializeAsync_facebookPlayerid',1 ,{initializeAsync_facebookPlayerid: 'initializeAsync_facebookPlayerid'});
+                    console.log("拉取到用户登录信息，FBInstant.initializeAsync回调。玩家 playerid=",facebookPlayerid);
+
+                    loadMainJS();
+					
+					//下面这句放到  FBInstant.initializeAsync().then(function() 获得了 facebookPlayerid 后
+					// gtag('config', gtag_log_id,{user_id: facebookPlayerid,cookie_flags: 'max-age=7200;secure;samesite=none'});
+  
+                });
+
+                // 让进度条变成1%
+                setLoadProgress(1);
+				
+                if(typeof setInterval != "undefined")
+                {
+                    updateProgress = setInterval(
+                            function()
+                            {
+                                if(isLoadComplete == true)
+                                {
+                                    if(updateProgress != null)
+                                    {
+                                        console.log("移除",facebookPlayerid);
+                                        clearInterval(updateProgress);
+                                        updateProgress = null;
+                                    }
+                                    return;
+                                }
+
+                                if(isLoadComplete == false)
+                                {
+                                    upateLoadProgress();
+                                }
+                            }, 100);
+                }
+            });
+
+    function bodyLoadComplete()
+    {
+        isLoadBody = true;
+        loadMainJS();
+    }
+
+     function loadMainJS()
+     {
+         if(isLoadBody == false || isInitFaceBookSDK == false)
+         {
+             return;
+         }
+
+         if(isLoadMainJS == true)
+         {
+             return;
+         }
+
+         isLoadMainJS = true;
+
+         loadJs("src/settings.js",function(){
+             loadJs("main.js", function(){
+                 var cocos2d = document.createElement('script');
+                 cocos2d.async = true;
+                 cocos2d.src = window._CCSettings.debug ? 'cocos2d-js.js' : 'cocos2d-js-min.js';
+                 var engineLoaded = function () {
+                     document.body.removeChild(cocos2d);
+                     cocos2d.removeEventListener('load', engineLoaded, false);
+                     window.boot();
+                 };
+                 cocos2d.addEventListener('load', engineLoaded, false);
+                 document.body.appendChild(cocos2d);
+             });
+         })
+     }
+</script>
+
+</body>
+</html>
